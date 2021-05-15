@@ -66,7 +66,7 @@ def lambda_handler(event, context):
             'IncludeDiscount': False,
             'UseAmortized': False
         },
-        'TimeUnit': 'DAILY',
+        'TimeUnit': 'ANNUALLY',
 #        'TimePeriod': {
 #            'Start': datetime(2015, 1, 1),
 #            'End': datetime(2115, 1, 1)
@@ -81,7 +81,7 @@ def lambda_handler(event, context):
                 'Unit': 'USD'
             }
         },
-        'BudgetType': 'USAGE',
+        'BudgetType': 'COST',
 #        'LastUpdatedTime': datetime(2015, 1, 1)
     },
              NotificationsWithSubscribers=[
