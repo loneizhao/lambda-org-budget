@@ -10,12 +10,12 @@ print('Loading function')
 s3 = boto3.client('s3')
 organizations = boto3.client('organizations')
 budgets = boto3.client('budgets')
+sts = boto3.client('sts')
 # Values
 
 rootorg = "r-u8ln"    #root organization ID
 targetorg = "ou-u8ln-vhyij8z9" # target organization unit ID
-payeraccountid = "9xxxxxxxxxxx" # 12 bit Payer account ID
-SNSARN = "arn:aws:sns:us-east-1:9xxxxxxxxxxx:mytopic" #SNS topic ARN
+SNSARN = "arn:aws:sns:us-west-2:904558036884:budget-action" #SNS topic ARN
 
 def decompress(data):
     with gzip.GzipFile(fileobj=io.BytesIO(data)) as f:
@@ -34,18 +34,20 @@ def lambda_handler(event, context):
             if record['eventName'] == "AcceptHandshake":
                 accountId = record['userIdentity']['accountId']
 #                print ("Accountid is " ,accountId)
-                response = organizations.move_account(
-             AccountId=accountId,
-             SourceParentId=rootorg,
-             DestinationParentId=targetorg
-             )
+#                response = organizations.move_account(
+#             AccountId=accountId,
+#             SourceParentId=rootorg,
+#             DestinationParentId=targetorg
+#             )
              #print(response)
+                response = sts.get_caller_identity()
+                payeraccountid = response["Account"]
                 response = budgets.create_budget(
              AccountId=payeraccountid,
              Budget={
              'BudgetName': accountId,
              'BudgetLimit': {
-             'Amount': '500',
+             'Amount': '0.5',
              'Unit': 'USD'
               },
               'CostFilters': {
@@ -67,17 +69,17 @@ def lambda_handler(event, context):
             'UseAmortized': False
         },
         'TimeUnit': 'ANNUALLY',
-#        'TimePeriod': {
-#            'Start': datetime(2015, 1, 1),
-#            'End': datetime(2115, 1, 1)
-#        },
+       #    'TimePeriod': {
+       #    'Start': datetime(2015, 1, 1),
+       #      'End': datetime(2087, 1, 1)
+       # },
         'CalculatedSpend': {
             'ActualSpend': {
-                'Amount': '500',
+                'Amount': '5',
                 'Unit': 'USD'
             },
             'ForecastedSpend': {
-                'Amount': '500',
+                'Amount': '5',
                 'Unit': 'USD'
             }
         },
